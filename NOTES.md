@@ -118,3 +118,10 @@ This will serve as baseline for my CI Platform.
 ## 2025-02-19 18:28:06 - Adding Yaml Parsing
 
 We will use [goccy/go-yaml](https://pkg.go.dev/github.com/goccy/go-yaml@v1.15.23) for parsing yaml as it looks best compatible with weird yaml formats.
+
+## 2025-02-19 18:28:06 - Adding Test Cases to Verify Workflow Format
+
+After reading a lot of Golang Unit Testing Posts, [Testify](https://github.com/stretchr/testify) seems like the best choice when it comes to writing testss (also I like the python3 like assertions). The other libraries look like a lot of work and im lazy.
+
+- https://jdheyburn.co.uk/blog/assertions-in-gotests-test-generation/
+- https://speedscale.com/blog/golang-testing-frameworks-for-every-type-of-test/

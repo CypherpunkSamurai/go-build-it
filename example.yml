@@ -15,7 +15,7 @@ jobs:
       - name: run tests
         run: go test ./...
   build:
-    # optional name (else it will be the name of the job. like `test` has name `test`)
+    # optional name (else it will be the name of the job. like 'test' has name 'test')
     name: Build Binary
     image: golang:latest
     steps:
