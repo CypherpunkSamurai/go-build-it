@@ -1,0 +1,24 @@
+# Example Worflow
+version: 1.0
+
+# name of the workflow
+name: Build and Test Go Binary
+
+# jobs under the workflow
+jobs:
+  test:
+    image: golang:latest
+    steps:
+      - use: checkout
+      - name: format code
+        run: go fmt ./...
+      - name: run tests
+        run: go test ./...
+  build:
+    # optional name (else it will be the name of the job. like `test` has name `test`)
+    name: Build Binary
+    image: golang:latest
+    steps:
+      - use: checkout
+      - name: build binary
+        run: go build -o main .

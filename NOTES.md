@@ -67,3 +67,50 @@ More resources here:
 - [Just Call Your Code Only Once !!](https://medium.easyread.co/just-call-your-code-only-once-256f69ed39a8)
 - [Implementing the Singleton Pattern in Go](https://www.codingexplorations.com/blog/implementing-the-singleton-pattern-in-go)
 - ⭐ [Golang Patterns - Creational Singleton](https://github.com/tmrts/go-patterns/blob/master/creational/singleton.md)
+
+## 2025-02-19 17:32:45 - Defining a Workflow Format
+
+We need to define a workflow format to our CI Platform. I personally find the [gitlab ci](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml), and [circleci samples](https://circleci.com/docs/sample-config/) and [github actions](https://docs.github.com/en/actions/sharing-automations/creating-workflow-templates-for-your-organization) `uses` to be quite useful.
+
+So I created this abomination of a workflow format:
+```yaml
+# Example Worflow
+version: 1.0
+
+# name of the workflow
+name: Build and Test Go Binary
+
+# jobs under the workflow
+jobs:
+  test:
+    image: golang:latest
+    steps:
+      - use: checkout
+      - name: format code
+        run: go fmt ./...
+      - name: run tests
+        run: go test ./...
+  build:
+    # optional name (else it will be the name of the job. like `test` has name `test`)
+    name: Build Binary
+    requires: [test]
+    image: golang:latest
+    steps:
+      - use: checkout
+      - name: build binary
+        run: go build -o main .
+```
+
+This will work for now. We have a simple workflow defined with image, steps, and uses.
+
+- `name` is used to give a name to the workflow
+- `jobs` define the sequence of the workflow
+  - `name` each job has a name and is optional. if no name is provided it will be the name of the job key.
+  - `requires` each job has a list of jobs that it depends on. If a job fails the other dependent jobs are not executed.
+  - `image` each job has a docker image. The image is used to run the job.
+  - `steps` define the sequence of the steps inside a job
+    - `uses` keyword is used to call actions or internal functions like `checkout` here is simply a quick way to say `git clone .`
+    - `name` each step has a name and is optional. if no name is provided it will be the name of the step key or action.
+    - `run` each step has a command to run.
+
+This will serve as baseline for my CI Platform.
