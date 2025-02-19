@@ -31,12 +31,14 @@ build:
 clean:
 	$(GOCLEAN)
 
+# make run commands are all silent (ie we use @ infront of @$(COMMAND) )
+# to print output use @echo $(COMMAND)
 run:
-	$(GOCLEAN)
-	$(GOFMT) .
-	$(GOTIDY)
-	$(GOBUILD) -o $(BINARY) -v
-	./$(BINARY)
+	@$(GOCLEAN)
+	@$(GOFMT) .
+	@$(GOTIDY)
+	@$(GOBUILD) -o $(BINARY) -v
+	@./$(BINARY)
 
 format:
 	$(GOFMT) .
