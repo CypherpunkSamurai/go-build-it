@@ -27,3 +27,7 @@ go get "github.com/docker/docker/pkg/stdcopy"
 ```
 
 We need a working docker daemon and need to run this to pull an `alpine:latest` container.
+
+## 2025-02-19 16:42:30 - For Logging we will use my trusty old favorite Uber Zap
+
+I copied over my `logger.go` from other project along with `env.go`
