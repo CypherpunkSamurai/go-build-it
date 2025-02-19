@@ -1,44 +1,46 @@
-{
-    "Insert Current Date": {
-        "prefix": "!date",
-        "body": [
-            "${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}"
-        ],
-        "description": "Insert current date (YYYY-MM-DD)"
-    },
-    "Insert Current Date and Time": {
-        "prefix": "!datetime",
-        "body": [
-            "${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}:${CURRENT_SECOND}"
-        ],
-        "description": "Insert current date and time (YYYY-MM-DD HH:MM:SS)"
-    },
-    "Insert Current Time": {
-        "prefix": "!time",
-        "body": [
-            "${CURRENT_HOUR}:${CURRENT_MINUTE}:${CURRENT_SECOND}"
-        ],
-        "description": "Insert current time (HH:MM:SS)"
-    },
-    "Insert Current Year": {
-        "prefix": "!year",
-        "body": [
-            "${CURRENT_YEAR}"
-        ],
-        "description": "Insert current year (YYYY)"
-    },
-    "Insert Current Month": {
-        "prefix": "!month",
-        "body": [
-            "${CURRENT_MONTH}"
-        ],
-        "description": "Insert current month (MM)"
-    },
-    "Insert Current Day": {
-        "prefix": "!day",
-        "body": [
-            "${CURRENT_DATE}"
-        ],
-        "description": "Insert current day (DD)"
+    // read https://pieces.app/blog/vs-code-snippets-guide
+    // ctrl + space to enable snippet
+    {
+        "Insert Current Date": {
+            "prefix": "!date",
+            "body": [
+                "${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}"
+            ],
+            "description": "Insert current date (YYYY-MM-DD)"
+        },
+        "Insert Current Date and Time": {
+            "prefix": "!datetime",
+            "body": [
+                "${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}:${CURRENT_SECOND}"
+            ],
+            "description": "Insert current date and time (YYYY-MM-DD HH:MM:SS)"
+        },
+        "Insert Current Time": {
+            "prefix": "!time",
+            "body": [
+                "${CURRENT_HOUR}:${CURRENT_MINUTE}:${CURRENT_SECOND}"
+            ],
+            "description": "Insert current time (HH:MM:SS)"
+        },
+        "Insert Current Year": {
+            "prefix": "!year",
+            "body": [
+                "${CURRENT_YEAR}"
+            ],
+            "description": "Insert current year (YYYY)"
+        },
+        "Insert Current Month": {
+            "prefix": "!month",
+            "body": [
+                "${CURRENT_MONTH}"
+            ],
+            "description": "Insert current month (MM)"
+        },
+        "Insert Current Day": {
+            "prefix": "!day",
+            "body": [
+                "${CURRENT_DATE}"
+            ],
+            "description": "Insert current day (DD)"
+        }
     }
-}
