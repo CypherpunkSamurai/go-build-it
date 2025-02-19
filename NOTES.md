@@ -114,3 +114,7 @@ This will work for now. We have a simple workflow defined with image, steps, and
     - `run` each step has a command to run.
 
 This will serve as baseline for my CI Platform.
+
+## 2025-02-19 18:28:06 - Adding Yaml Parsing
+
+We will use [goccy/go-yaml](https://pkg.go.dev/github.com/goccy/go-yaml@v1.15.23) for parsing yaml as it looks best compatible with weird yaml formats.
