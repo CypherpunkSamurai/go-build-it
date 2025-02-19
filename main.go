@@ -2,54 +2,31 @@ package main
 
 import (
 	"context"
-	"io"
-	"os"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/cyperpunksamurai/go-build-it/pkg/docker"
+	"github.com/cyperpunksamurai/go-build-it/pkg/utils"
 )
 
 func main() {
+	// create a context for main
 	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	defer ctx.Done()
+
+	// test pulling alpine:latest container
+	reader, err := docker.PullImage(ctx, "alpine:latest")
 	if err != nil {
 		panic(err)
 	}
-	defer cli.Close()
+	// close the reader
+	defer reader.Close()
 
-	reader, err := cli.ImagePull(ctx, "docker.io/library/alpine:latest", image.PullOptions{})
-	if err != nil {
-		panic(err)
-	}
-	io.Copy(os.Stdout, reader)
-
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: "alpine:latest",
-		Cmd:   []string{"echo", "hello world"},
-	}, nil, nil, nil, "")
-	if err != nil {
-		panic(err)
-	}
-
-	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		panic(err)
-	}
-
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
-	select {
-	case err := <-errCh:
+	// read from reader and print
+	buf := make([]byte, 1024)
+	for {
+		n, err := reader.Read(buf)
 		if err != nil {
-			panic(err)
+			break
 		}
-	case <-statusCh:
+		utils.Logger().Println(string(buf[:n]))
 	}
-
-	out, err := cli.ContainerLogs(ctx, resp.ID, container.LogsOptions{ShowStdout: true})
-	if err != nil {
-		panic(err)
-	}
-
-	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 }

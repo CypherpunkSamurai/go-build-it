@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"io"
 	"testing"
 	"time"
 )
@@ -65,5 +66,63 @@ func TestGetDockerClient(t *testing.T) {
 			t.Errorf("Docker server version failed: %v", err)
 		}
 		t.Logf("Docker server version: %s (API: %s)", version.Version, version.APIVersion)
+	})
+}
+
+// TestPullImage tests the PullImage function
+// we will use hello-world image
+func TestPullImage(t *testing.T) {
+	// skip test if docker daemon is not available
+	if !isDockerAvailable(t) {
+		t.Skip("Docker daemon is not available - skipping pull image test")
+	}
+
+	// test pull hello-world image
+	t.Run("Pull hello-world image", func(t *testing.T) {
+		ctx := context.Background()
+		reader, err := PullImage(ctx, "hello-world:latest")
+		if err != nil {
+			t.Fatalf("Failed to pull image: %v", err)
+		}
+		defer reader.Close()
+
+		// Verify that we can read from the reader
+		buf := make([]byte, 1024)
+		n, err := reader.Read(buf)
+		if err != nil && err != io.EOF {
+			t.Errorf("Failed to read from pull reader: %v", err)
+		}
+		if n == 0 {
+			t.Error("Expected to read some data from pull reader, but got none")
+		}
+	})
+
+	// test pull logs
+	t.Run("Pull logs", func(t *testing.T) {
+		ctx := context.Background()
+		reader, err := PullImage(ctx, "hello-world:latest")
+		if err != nil {
+			t.Fatalf("Failed to pull image: %v", err)
+		}
+		defer reader.Close()
+
+		// Verify that we can read from the reader
+		buf := make([]byte, 1024)
+		n, err := reader.Read(buf)
+		if err != nil && err != io.EOF {
+			t.Errorf("Failed to read from pull reader: %v", err)
+		}
+		if n == 0 {
+			t.Error("Expected to read some data from pull reader, but got none")
+		}
+	})
+
+	// test pull non-existent image
+	t.Run("Pull non-existent image", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := PullImage(ctx, "non-existent-image:latest")
+		if err == nil {
+			t.Error("Expected an error when pulling non-existent image, but got nil")
+		}
 	})
 }
