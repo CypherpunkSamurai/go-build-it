@@ -9,7 +9,7 @@ jobs:
   test:
     image: golang:latest
     steps:
-      - use: checkout
+      - uses: checkout
       - name: format code
         run: go fmt ./...
       - name: run tests
@@ -19,6 +19,6 @@ jobs:
     name: Build Binary
     image: golang:latest
     steps:
-      - use: checkout
+      - uses: checkout
       - name: build binary
         run: go build -o main .

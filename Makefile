@@ -7,7 +7,7 @@ GOCMD=go
 GOTIDY=$(GOCMD) mod tidy
 GOBUILD=$(GOCMD) build
 GOFMT=$(GOCMD) fmt
-GOCLEAN=$(GOCMD) clean
+GOCLEAN=$(GOCMD) clean -cache
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 BINARY_NAME=main
@@ -37,7 +37,7 @@ run:
 	@$(GOCLEAN)
 	@$(GOFMT) .
 	@$(GOTIDY)
-	@$(GOBUILD) -o $(BINARY) -v
+	@$(GOBUILD) -o $(BINARY)
 	@./$(BINARY)
 
 format:

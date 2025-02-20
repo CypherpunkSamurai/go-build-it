@@ -125,3 +125,9 @@ After reading a lot of Golang Unit Testing Posts, [Testify](https://github.com/s
 
 - https://jdheyburn.co.uk/blog/assertions-in-gotests-test-generation/
 - https://speedscale.com/blog/golang-testing-frameworks-for-every-type-of-test/
+
+## 2025-02-20 12:21:20 - Renamed WorkflowType to workflow_type cause of go cache bug
+
+Golang requires consistent naming. If im using camel case I need to define all structs in camel case, else i need to use snake case.
+
+Workflow file also was updated. `use` was renamed to `uses` for consistency.

@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/goccy/go-yaml"
 )
@@ -31,7 +32,7 @@ type JobType struct {
 
 // StepType represents a step in a job
 type StepType struct {
-	Uses *string `yaml:"use,omitempty"`  // use the step defined in the workflow
+	Uses *string `yaml:"uses,omitempty"` // use the step defined in the workflow
 	Name *string `yaml:"name,omitempty"` // name of the step (optional)
 	Run  *string `yaml:"run,omitempty"`  // run command to execute
 }
@@ -57,10 +58,10 @@ func (s *StepType) GetName() string {
 // Validate ensures the step is properly configured
 func (s *StepType) Validate() error {
 	if s.Uses != nil && s.Run != nil {
-		return fmt.Errorf("step cannot have both 'use' and 'run' fields")
+		return fmt.Errorf("step cannot have both 'uses' and 'run' fields")
 	}
 	if s.Uses == nil && s.Run == nil {
-		return fmt.Errorf("step must have either 'use' or 'run' field")
+		return fmt.Errorf("step must have either 'uses' or 'run' field")
 	}
 	return nil
 }
@@ -96,4 +97,13 @@ func UnmarshalWorkflowType(yml string) (*WorkflowType, error) {
 	}
 
 	return v, nil
+}
+
+// UnmarshalWorkflowTypeFromFile unmarshalls a workflow from yaml file
+func UnmarshalWorkflowTypeFromFile(path string) (*WorkflowType, error) {
+	yml, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
+	}
+	return UnmarshalWorkflowType(string(yml))
 }
