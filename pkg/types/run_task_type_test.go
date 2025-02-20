@@ -8,7 +8,7 @@ import (
 )
 
 // TestFromWorkflowType - Tests FromWorkflowType function so it returns valid RunTaskType
-func TestFromWorkflowType(t *testing.T) {
+func TestRunTaskTypeFromWorkflowType(t *testing.T) {
 	// define a list of test cases (we defined only 2)
 	tests := []struct {
 		name     string
@@ -22,6 +22,7 @@ func TestFromWorkflowType(t *testing.T) {
 			workflow: &WorkflowType{
 				Jobs: map[string]JobType{
 					"test": {
+						Name:  utils.StrPtr("test"),
 						Image: "golang:latest",
 						Steps: []StepType{
 							{Uses: utils.StrPtr("checkout")},
@@ -32,11 +33,17 @@ func TestFromWorkflowType(t *testing.T) {
 			},
 			jobName: "test",
 			want: &RunTaskType{
-				ImageName: "golang:latest",
-				Commands: RunCommandType{
-					ShellCommands: []string{
-						"echo 'cloning git... :P'",
-						"go test ./...",
+				Name:  "test",
+				Image: "golang:latest",
+				Dockerfile: DockerfileType{
+					Lines: []string{
+						"FROM golang:latest",
+						"RUN mkdir -p /workdir",
+						"RUN chmod -R +x /workdir",
+						"RUN chown -R $USER /workdir",
+						"WORKDIR /workdir",
+						"ADD . .",
+						"RUN go test ./...",
 					},
 				},
 			},
@@ -55,16 +62,19 @@ func TestFromWorkflowType(t *testing.T) {
 
 	// test each test case with expectations
 	for _, tt := range tests {
+		//
 		t.Run(tt.name, func(t *testing.T) {
-			// check each case
-			got, err := RunTaskType{}.FromWorkflowType(tt.workflow, tt.jobName)
+			// Load Test Yaml
+			got, err := FromWorkflowType(tt.workflow, tt.jobName)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+			}
+			// Assert There are no errors
+			if tt.want != nil {
 				assert.Equal(t, tt.want, got)
 			}
 		})
 	}
-
 }
