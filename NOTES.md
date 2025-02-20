@@ -131,3 +131,7 @@ After reading a lot of Golang Unit Testing Posts, [Testify](https://github.com/s
 Golang requires consistent naming. If im using camel case I need to define all structs in camel case, else i need to use snake case.
 
 Workflow file also was updated. `use` was renamed to `uses` for consistency.
+
+## 2025-02-20 12:21:20 - Added RunTask struct
+
+Added RunTaskType struct for converting workflows to runtasks that docker api can understand. Updated main to include a simple test example. Added test cases for RunTaskType.

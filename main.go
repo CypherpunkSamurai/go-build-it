@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/cyperpunksamurai/go-build-it/pkg/docker"
-	"github.com/cyperpunksamurai/go-build-it/pkg/utils"
+	"github.com/cyperpunksamurai/go-build-it/pkg/types"
 )
 
 func main() {
@@ -12,21 +12,24 @@ func main() {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	// test pulling alpine:latest container
-	reader, err := docker.PullImage(ctx, "alpine:latest")
+	// Read Workflow File
+	workflow, err := types.UnmarshalWorkflowTypeFromFile("example.yml")
 	if err != nil {
 		panic(err)
 	}
-	// close the reader
-	defer reader.Close()
 
-	// read from reader and print
-	buf := make([]byte, 1024)
-	for {
-		n, err := reader.Read(buf)
-		if err != nil {
-			break
-		}
-		utils.Logger().Println(string(buf[:n]))
+	// Create an empty RunTaskType to call the method
+	var rt types.RunTaskType
+
+	// FromWorkflowType returns a pointer
+	runTask, err := rt.FromWorkflowType(workflow, "test")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Loaded workflow task: %+v\n", runTask.Name)
+	fmt.Printf("- image: %s\n", runTask.ImageName)
+	for _, cmd := range runTask.Commands.ShellCommands {
+		fmt.Printf("- command: %s\n", cmd)
 	}
 }
