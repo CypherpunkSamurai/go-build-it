@@ -135,3 +135,87 @@ Workflow file also was updated. `use` was renamed to `uses` for consistency.
 ## 2025-02-20 12:21:20 - Added RunTask struct
 
 Added RunTaskType struct for converting workflows to runtasks that docker api can understand. Updated main to include a simple test example. Added test cases for RunTaskType.
+
+
+## 2025-02-20 12:27:39 - I Learnt How to Running Containers Interactively
+
+I'm writing this next morning as I slept on completing the work last night and pushing changes to remote. So after a bit of research i found we can run `docker exec` from the docker api, and it also provides us with standard io.
+
+On checking out the `Client.ContainerCreate` [godoc](https://pkg.go.dev/github.com/docker/docker/client#Client.ContainerCreate) we had been using before i found other options that can be passed to ContainerCreate.
+
+```go
+func (cli *Client) ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
+```
+
+With a little searching i found code examples for the interesting `Tty` option in `container.Config`.
+
+query: `context:global lang:go .ContainerCreate( Tty` [\[1\]](https://sourcegraph.com/search?q=context:global+lang:go+.ContainerCreate%28+Tty&patternType=keyword&sm=0) [\[2\]](https://github.com/search?q=lang%3Ago+.ContainerCreate%28+Tty&type=code)
+
+So I cooked up a solution:
+
+```go
+// create a container with a shell
+resp, err := cli.ContainerCreate(ctx, &container.Config{
+    Image:        "alpine:latest",
+    Cmd:          []string{"/bin/sh"},
+    Tty:          true,
+    OpenStdin:    true,
+    StdinOnce:    true,
+    AttachStdin:  true,
+    AttachStdout: true,
+    AttachStderr: true,
+}, nil, nil, nil, "")
+if err != nil {
+    return err
+}
+
+// start the container
+if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+    return err
+}
+
+// attach io
+waiter, err := cli.ContainerAttach(ctx, resp.ID, container.AttachOptions{
+    Stdin:  true,
+    Stdout: true,
+    Stderr: true,
+    Stream: true,
+})
+if err != nil {
+    return err
+}
+defer waiter.Close()
+
+go io.Copy(os.Stdout, waiter.Reader)
+go io.Copy(os.Stderr, waiter.Reader)
+
+// run shell commands
+commands := []string{
+    "apk add vim\n",
+    "vim test.txt\n",
+    "i",
+    "hello",
+    "\x1b",
+    ":wq\n",
+    "exit\n",
+}
+
+for _, cmd := range commands {
+    _, err = waiter.Conn.Write([]byte(cmd))
+    if err != nil {
+        return err
+    }
+    time.Sleep(time.Second)
+}
+
+// wait for container to exit
+statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+select {
+case err := <-errCh:
+    if err != nil {
+        return err
+    }
+case <-statusCh:
+}
+```
+
