@@ -28,13 +28,13 @@ jobs:
     requires:
       - build
     steps:
-      - use: checkout
+      - uses: checkout
       - name: run tests
         run: go test ./...
   build:
     image: golang:latest
     steps:
-      - use: checkout
+      - uses: checkout
       - run: go build -o main .
 `,
 			wantErr: false,
@@ -61,19 +61,19 @@ jobs:
 			},
 		},
 		{
-			name: "invalid step with both use and run",
+			name: "invalid step with both uses and run",
 			yaml: `
 jobs:
   test:
     image: golang:latest
     steps:
-      - use: checkout
+      - uses: checkout
         run: echo "invalid"
 `,
 			wantErr: true,
 		},
 		{
-			name: "invalid step with neither use nor run",
+			name: "invalid step with neither uses nor run",
 			yaml: `
 jobs:
   test:
