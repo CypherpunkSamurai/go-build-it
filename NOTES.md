@@ -219,3 +219,18 @@ case <-statusCh:
 }
 ```
 
+## 2025-02-22 10:26:09 - Must and DotEnv Go
+
+Must pattern is new to golang and evalutates conditions that are critical to the program. It panics on error.
+
+I've copied it from this post :P
+- https://dev.to/dubjay18/gos-must-pattern-streamline-your-error-handling-27ff
+
+```go
+func Must[T any](expr T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return expr
+}
+```

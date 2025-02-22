@@ -6,7 +6,9 @@ require (
 	github.com/docker/docker v27.5.1+incompatible
 	github.com/go-git/go-git/v5 v5.13.2
 	github.com/goccy/go-yaml v1.15.23
+	github.com/joho/godotenv v1.5.1
 	github.com/mholt/archives v0.1.0
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 )
