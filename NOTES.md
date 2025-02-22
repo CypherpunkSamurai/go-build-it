@@ -2,6 +2,8 @@
 
 This file contains snippets and notes for the project.
 
+In this era proving your work is true and not copied ai slop is essential. This file also provides a record of my progress throughout the journey as I build this project.
+
 ## 2025-02-19 16:00:44 - Init Project
 
 This is a project to build a simple ci server using golang and docker api.
@@ -234,3 +236,37 @@ func Must[T any](expr T, err error) T {
 	return expr
 }
 ```
+
+## 2025-02-20 14:10:32 - Rethinking the Architecture
+
+```
+ ________              _________________                 __________________
+|        |    push    |                 |    webhook    |                  |
+|   git  | ---------> |    git server   | ------------> |    ci backend    |
+|________|            |_________________|               |__________________|
+                                                                  |
+                                                                  | git clone (with credentials)
+                                                                  ↓
+                                                         ___________________
+                                                        |_____ci_runner_____|
+```
+
+So we are currently in the runner part of things. We have written a simple runner that clones the repository and runs the tests.
+But we will require us to be provided the git repository somehow, along with the credentials. Credentials for now we omit.
+
+Currently let's write a simple rabbitmq solution, cause:
+1. Reliable
+2. Kafka also has pubsub but its mostly suitable for streaming data. Not what we need.
+3. Easy to use
+
+RabbitMQ is provided for free by [cloudamqp](https://customer.cloudamqp.com/instance/create)
+
+## 2025-02-22 09:24:39 - Took a Break for a While. Let's write a simple RabbitMQ Client for getting messages
+
+The message can be simple urls and stuff. Or a webhook payload. Or a struct.
+
+Creating the golang client was simple, the rabbitmq [tutorial two](https://www.rabbitmq.com/tutorials/tutorial-two-go#putting-it-all-together) was easy and thus I created a full golang client that waits for messages and prints them.
+
+For now we will be using json for messages. I created a [test python script](https://www.rabbitmq.com/tutorials/tutorial-two-python) to send it work.
+
+On testing it successfully received a message and printed it.

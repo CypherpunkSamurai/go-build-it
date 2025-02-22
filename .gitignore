@@ -27,3 +27,6 @@ go.work.sum
 .env.development
 .env.local
 .env.test
+
+# python venv
+.venv/
