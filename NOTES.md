@@ -286,3 +286,17 @@ I'll be copying kafka docker compose from:
 We require Zookeeper and Kafka to be running. Zookeeper is for keeping the state of the cluster. Kafka is for storing the messages.
 
 On the aggregator end we are open to using any log aggregator like [Grafana Loki](https://grafana.com/docs/loki/latest/reference/loki-http-api/), [Logstash](https://www.logstash.net/), [Elasticsearch](https://www.elastic.co/products/elasticsearch) or any other log management solution.
+
+## 2025-02-24 11:41:03 - Lets first rewrite rabbitmq to use zeromq, or not?
+
+ZeroMQ Provides a Easy to Get Started Tutorial on their website for C++, but for golang we have [these librarises](https://zeromq.org/languages/go/).
+
+After 1 day of fiddling around ZeroMQ documentation and dockerfiles on github turns out zeromq is a library only job queue implementation.
+
+Welp, off to research again, [there are a few other alternatives](https://www.softpost.org/message-queue/rabbitmq-alternatives) i could find:
+- [Apache Qpid](https://qpid.apache.org)
+- [ActiveMQ](https://activemq.apache.org)
+
+But these aren't really as good as rabbitmq.
+
+Welp we return to rabbitmq again i guess. It's the industry standard and nothings wrong with a little heavy machinery that works well.
