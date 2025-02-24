@@ -270,3 +270,19 @@ Creating the golang client was simple, the rabbitmq [tutorial two](https://www.r
 For now we will be using json for messages. I created a [test python script](https://www.rabbitmq.com/tutorials/tutorial-two-python) to send it work.
 
 On testing it successfully received a message and printed it.
+
+## 2025-02-22 13:55:43 - Writing the Builder
+
+I'm yet to write the builder and cant figure out how to start a container from a builder. I can use builds, or i can run shell commands.
+
+The logs need to be step by step so we need to have proper idea of this to know how to store / stream logs.
+
+We need a solution for storing while streaming the logs. Kafka can be used for this, but we would then need to replace rabbitmq to something less complex. We can replace RabbitMQ with ZeroMQ.
+
+I'll be copying kafka docker compose from:
+- taken from this tutorial: https://learn.conduktor.io/kafka/how-to-start-kafka-using-docker/
+- https://github.com/conduktor/kafka-stack-docker-compose/blob/master/zk-single-kafka-multiple.yml
+
+We require Zookeeper and Kafka to be running. Zookeeper is for keeping the state of the cluster. Kafka is for storing the messages.
+
+On the aggregator end we are open to using any log aggregator like [Grafana Loki](https://grafana.com/docs/loki/latest/reference/loki-http-api/), [Logstash](https://www.logstash.net/), [Elasticsearch](https://www.elastic.co/products/elasticsearch) or any other log management solution.
