@@ -20,6 +20,7 @@ type WorkflowType struct {
 	Version *string            `yaml:"version,omitempty"` // version of the workflow (optional)
 	Name    *string            `yaml:"name,omitempty"`    // name of the workflow (optional)
 	Jobs    map[string]JobType `yaml:"jobs"`              // map of job name to job definition
+	GitUrl  *string            `yaml:"git_url,omitempty"` // url of the git repository
 }
 
 // JobType represents a job in a workflow

@@ -41,28 +41,29 @@ Creating a Singleton client is not that hard. I will be using the following code
 ```go
 // Docker Client Instance
 var (
-	cli  *client.Client
-	once sync.Once
+ cli  *client.Client
+ once sync.Once
 )
 
 // GetDockerClient returns the Docker client instance
 func GetDockerClient() *client.Client {
-	// thread-safe implementation (classic go :P)
-	once.Do(func() {
-		var err error
-		cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-		if err != nil {
-			utils.Logger().Printf("Error creating docker client: %v", err)
-			cli = nil
-		}
-	})
-	return cli
+ // thread-safe implementation (classic go :P)
+ once.Do(func() {
+  var err error
+  cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+  if err != nil {
+   utils.Logger().Printf("Error creating docker client: %v", err)
+   cli = nil
+  }
+ })
+ return cli
 }
 ```
 
 Which is a [common singleton pattern](https://refactoring.guru/design-patterns/singleton/go/example) for go. If you're not from the Java world singletons are single instances of classes mostly used to manage resources like retrofit http clients etc, in our case it's a docker [*client.Client](https://pkg.go.dev/github.com/docker/docker/client#NewClientWithOpts).
 
 More resources here:
+
 - [sync](https://pkg.go.dev/sync)
 - [Go sync.Once is Simple... Does It Really?](https://victoriametrics.com/blog/go-sync-once/)
 - [Understanding Golang's sync.Once: Practical Examples in 2024](https://cristiancurteanu.com/understanding-go-sync-once/)
@@ -75,6 +76,7 @@ More resources here:
 We need to define a workflow format to our CI Platform. I personally find the [gitlab ci](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml), and [circleci samples](https://circleci.com/docs/sample-config/) and [github actions](https://docs.github.com/en/actions/sharing-automations/creating-workflow-templates-for-your-organization) `uses` to be quite useful.
 
 So I created this abomination of a workflow format:
+
 ```yaml
 # Example Worflow
 version: 1.0
@@ -125,8 +127,8 @@ We will use [goccy/go-yaml](https://pkg.go.dev/github.com/goccy/go-yaml@v1.15.23
 
 After reading a lot of Golang Unit Testing Posts, [Testify](https://github.com/stretchr/testify) seems like the best choice when it comes to writing testss (also I like the python3 like assertions). The other libraries look like a lot of work and im lazy.
 
-- https://jdheyburn.co.uk/blog/assertions-in-gotests-test-generation/
-- https://speedscale.com/blog/golang-testing-frameworks-for-every-type-of-test/
+- <https://jdheyburn.co.uk/blog/assertions-in-gotests-test-generation/>
+- <https://speedscale.com/blog/golang-testing-frameworks-for-every-type-of-test/>
 
 ## 2025-02-20 12:21:20 - Renamed WorkflowType to workflow_type cause of go cache bug
 
@@ -137,7 +139,6 @@ Workflow file also was updated. `use` was renamed to `uses` for consistency.
 ## 2025-02-20 12:21:20 - Added RunTask struct
 
 Added RunTaskType struct for converting workflows to runtasks that docker api can understand. Updated main to include a simple test example. Added test cases for RunTaskType.
-
 
 ## 2025-02-20 12:27:39 - I Learnt How to Running Containers Interactively
 
@@ -226,14 +227,15 @@ case <-statusCh:
 Must pattern is new to golang and evalutates conditions that are critical to the program. It panics on error.
 
 I've copied it from this post :P
-- https://dev.to/dubjay18/gos-must-pattern-streamline-your-error-handling-27ff
+
+- <https://dev.to/dubjay18/gos-must-pattern-streamline-your-error-handling-27ff>
 
 ```go
 func Must[T any](expr T, err error) T {
-	if err != nil {
-		panic(err)
-	}
-	return expr
+ if err != nil {
+  panic(err)
+ }
+ return expr
 }
 ```
 
@@ -255,6 +257,7 @@ So we are currently in the runner part of things. We have written a simple runne
 But we will require us to be provided the git repository somehow, along with the credentials. Credentials for now we omit.
 
 Currently let's write a simple rabbitmq solution, cause:
+
 1. Reliable
 2. Kafka also has pubsub but its mostly suitable for streaming data. Not what we need.
 3. Easy to use
@@ -280,8 +283,9 @@ The logs need to be step by step so we need to have proper idea of this to know 
 We need a solution for storing while streaming the logs. Kafka can be used for this, but we would then need to replace rabbitmq to something less complex. We can replace RabbitMQ with ZeroMQ.
 
 I'll be copying kafka docker compose from:
-- taken from this tutorial: https://learn.conduktor.io/kafka/how-to-start-kafka-using-docker/
-- https://github.com/conduktor/kafka-stack-docker-compose/blob/master/zk-single-kafka-multiple.yml
+
+- taken from this tutorial: <https://learn.conduktor.io/kafka/how-to-start-kafka-using-docker/>
+- <https://github.com/conduktor/kafka-stack-docker-compose/blob/master/zk-single-kafka-multiple.yml>
 
 We require Zookeeper and Kafka to be running. Zookeeper is for keeping the state of the cluster. Kafka is for storing the messages.
 
@@ -294,9 +298,20 @@ ZeroMQ Provides a Easy to Get Started Tutorial on their website for C++, but for
 After 1 day of fiddling around ZeroMQ documentation and dockerfiles on github turns out zeromq is a library only job queue implementation.
 
 Welp, off to research again, [there are a few other alternatives](https://www.softpost.org/message-queue/rabbitmq-alternatives) i could find:
+
 - [Apache Qpid](https://qpid.apache.org)
 - [ActiveMQ](https://activemq.apache.org)
 
 But these aren't really as good as rabbitmq.
 
 Welp we return to rabbitmq again i guess. It's the industry standard and nothings wrong with a little heavy machinery that works well.
+
+## 2025-02-24 11:46:57 - Should we reinvent the wheel
+
+The WorkflowType has all the commands and all the information required for running a task so should we create a seperate runtask type.
+
+I think its a good idea to create a seperate RunTaskType, this way we can validate the workflow before running it.
+
+## 2025-03-01 23:35:12 - Changes to the RunTaskType
+
+So I changed the RunTaskType to be a struct that can be used to run the task. Added a git url and converted it to use commands instead of Dockerfile.

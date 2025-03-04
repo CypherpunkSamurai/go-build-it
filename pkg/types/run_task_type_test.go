@@ -20,6 +20,7 @@ func TestRunTaskTypeFromWorkflowType(t *testing.T) {
 		{
 			name: "valid job",
 			workflow: &WorkflowType{
+				GitUrl: utils.StrPtr("https://github.com/cyperpunksamurai/go-build-it.git"),
 				Jobs: map[string]JobType{
 					"test": {
 						Name:  utils.StrPtr("test"),
@@ -35,17 +36,11 @@ func TestRunTaskTypeFromWorkflowType(t *testing.T) {
 			want: &RunTaskType{
 				Name:  "test",
 				Image: "golang:latest",
-				Dockerfile: DockerfileType{
-					Lines: []string{
-						"FROM golang:latest",
-						"RUN mkdir -p /workdir",
-						"RUN chmod -R +x /workdir",
-						"RUN chown -R $USER /workdir",
-						"WORKDIR /workdir",
-						"ADD . .",
-						"RUN go test ./...",
-					},
+				DockerShellCommands: []DockerCommandType{
+					{cmd: "git clone https://github.com/cyperpunksamurai/go-build-it.git .", cwd: ""},
+					{cmd: "go test ./...", cwd: ""},
 				},
+				GitUrl: "https://github.com/cyperpunksamurai/go-build-it.git",
 			},
 			wantErr: false,
 		},

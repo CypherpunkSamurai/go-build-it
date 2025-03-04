@@ -4,9 +4,13 @@ version: 1.0
 # name of the workflow
 name: Build and Test Go Binary
 
+# git url for the repository
+git_url: https://github.com/cyperpunksamurai/go-build-it.git
+
 # jobs under the workflow
 jobs:
   test:
+    name: Run Tests
     image: golang:latest
     steps:
       - uses: checkout

@@ -2,24 +2,26 @@ package types
 
 import (
 	"fmt"
-	"strings"
 )
 
 // RunTaskType represents a task to be run with Docker API
 type RunTaskType struct {
-	Name       string
-	Image      string
-	Dockerfile DockerfileType
+	Name                string              // the name of this task
+	Image               string              // the image to use
+	DockerShellCommands []DockerCommandType // our docker commands
+	GitUrl              string
 }
 
-// DockerfileType represents the dockerfile in lines
-type DockerfileType struct {
-	Lines []string
+// DockerCommandType represents a single command to be run in the dockerimage
+type DockerCommandType struct {
+	cmd string            // command to run in the container
+	env map[string]string // env key value pairs
+	cwd string            // current working directory (nill to use default directory)
 }
 
-// ToString returns the dockerfile as a string
-func (df *DockerfileType) ToString() string {
-	return strings.Join(df.Lines, "\n")
+// ToString returns the docker command as a string
+func (dc *DockerCommandType) ToString() string {
+	return dc.cmd
 }
 
 // Validate ensures the run task is properly configured
@@ -27,8 +29,11 @@ func (rt *RunTaskType) Validate() error {
 	if rt.Name == "" {
 		return fmt.Errorf("name cannot be empty")
 	}
-	if rt.Dockerfile.ToString() == "" {
-		return fmt.Errorf("dockerfile cannot be empty")
+	// validate that no command is null
+	for _, dockercommand := range rt.DockerShellCommands {
+		if dockercommand.ToString() == "" {
+			return fmt.Errorf("docker command cannot be empty")
+		}
 	}
 	return nil
 }
@@ -42,28 +47,31 @@ func FromWorkflowType(wf *WorkflowType, jobID string) (*RunTaskType, error) {
 
 	// Create a new RunTaskType
 	t := &RunTaskType{
-		Name:  *job.Name,
-		Image: job.Image,
-		Dockerfile: DockerfileType{
-			Lines: []string{
-				"FROM " + job.Image,
-				"RUN mkdir -p /workdir",
-				"RUN chmod -R +x /workdir",
-				"RUN chown -R $USER /workdir",
-				"WORKDIR /workdir",
-			},
-		},
+		Name:                *job.Name,
+		Image:               job.Image,
+		DockerShellCommands: []DockerCommandType{},
+	}
+
+	// check if git url is set
+	if wf.GitUrl != nil {
+		t.GitUrl = *wf.GitUrl
 	}
 
 	// Add steps
 	for _, step := range job.Steps {
 		switch step.GetKind() {
 		case StepKindUses:
-			if *step.Uses == "checkout" {
-				t.Dockerfile.Lines = append(t.Dockerfile.Lines, "ADD . .")
+			if *step.Uses == "checkout" && t.GitUrl != "" {
+				t.DockerShellCommands = append(t.DockerShellCommands, DockerCommandType{
+					cmd: fmt.Sprintf("git clone %s .", t.GitUrl),
+					cwd: "",
+				})
 			}
 		case StepKindRun:
-			t.Dockerfile.Lines = append(t.Dockerfile.Lines, fmt.Sprintf("RUN %s", *step.Run))
+			t.DockerShellCommands = append(t.DockerShellCommands, DockerCommandType{
+				cmd: *step.Run,
+				cwd: "",
+			})
 		}
 	}
 

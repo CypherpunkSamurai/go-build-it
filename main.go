@@ -31,8 +31,8 @@ func main() {
 
 	fmt.Printf("Loaded workflow task: %+v\n", runTask.Name)
 	fmt.Printf("- image: %s\n", runTask.Image)
-	for _, cmd := range runTask.Dockerfile.Lines {
-		fmt.Printf("- command: %s\n", cmd)
+	for _, cmd := range runTask.DockerShellCommands {
+		fmt.Printf("- command: %s\n", cmd.ToString())
 	}
 
 	// Listen for Tasks
