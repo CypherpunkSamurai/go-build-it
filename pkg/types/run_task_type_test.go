@@ -37,6 +37,7 @@ func TestFromWorkflowType(t *testing.T) {
 				Name:  "test",
 				Image: "golang:latest",
 				DockerFileLines: []string{
+					"FROM golang:latest",
 					// remember to add the initial commands in test
 					"RUN mkdir -p /workdir",
 					"WORKDIR /workdir",

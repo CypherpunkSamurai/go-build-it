@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/cyperpunksamurai/go-build-it/pkg/types"
-	"github.com/docker/docker/api/types/container"
+	"github.com/cyperpunksamurai/go-build-it/pkg/utils"
+	dockerTypes "github.com/docker/docker/api/types"
 )
 
 // RunTaskWithDocker - Runs a RunTask with Docker API
@@ -30,61 +31,26 @@ func RunTaskWithDocker(ctx context.Context, runTask *types.RunTaskType) error {
 	// stream r to stdout
 	io.Copy(os.Stdout, r)
 
-	// create a container with a shell
-	resp, err := GetDockerClient().ContainerCreate(ctx, &container.Config{
-		Image:        runTask.Image,
-		Cmd:          []string{"/bin/sh"},
-		Tty:          true,
-		OpenStdin:    true,
-		StdinOnce:    true,
-		AttachStdin:  true,
-		AttachStdout: true,
-		AttachStderr: true,
-	}, nil, nil, nil, "")
+	// Create a Dockerfile Tar Ball
+	fmt.Println(strings.Join(runTask.DockerFileLines, "\n"))
+	dockerfileTar, err := utils.TarFile(ctx, "dockerfile.tar", "Dockerfile", []byte(strings.Join(runTask.DockerFileLines, "\n")))
 	if err != nil {
 		return err
 	}
 
-	// start the container
-	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		return err
-	}
-
-	// attach io
-	waiter, err := cli.ContainerAttach(ctx, resp.ID, container.AttachOptions{
-		Stdin:  true,
-		Stdout: true,
-		Stderr: true,
-		Stream: true,
+	// Build
+	response, err := client.ImageBuild(ctx, dockerfileTar, dockerTypes.ImageBuildOptions{
+		NoCache: true,
+		// Tags:    []string{runTask.Image},
+		Memory: 1024 * 1024 * 1024, // 1GB
+		// SuppressOutput: true,
 	})
 	if err != nil {
 		return err
 	}
-	defer waiter.Close()
 
-	go io.Copy(os.Stdout, waiter.Reader)
-	go io.Copy(os.Stderr, waiter.Reader)
-
-	// run shell commands
-	for _, line := range runTask.DockerFileLines {
-		linebytes := []byte(line + "\n")
-		fmt.Println("Running command: ", string(linebytes))
-		_, err = waiter.Conn.Write(linebytes)
-		if err != nil {
-			panic(err)
-		}
-		time.Sleep(time.Second)
-	}
-
-	// wait for container to exit
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
-	select {
-	case err := <-errCh:
-		if err != nil {
-			return err
-		}
-	case <-statusCh:
-	}
+	// read response
+	io.Copy(os.Stdout, response.Body)
 
 	return nil
 }

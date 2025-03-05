@@ -315,3 +315,14 @@ I think its a good idea to create a seperate RunTaskType, this way we can valida
 ## 2025-03-01 23:35:12 - Changes to the RunTaskType
 
 So I changed the RunTaskType to be a struct that can be used to run the task. Added a git url and converted it to use commands instead of Dockerfile.
+
+## 2025-03-06 00:03:01 - Added In Memory Tar Function
+
+I created a in memory tar function using afero from spf13 and archives to compress a file in memory and return a reader.
+
+A lot of the implementation is copied from:
+
+- <https://github.com/mholt/archives/blob/335037c4ea10c326ec4a7a655b505ffdd93a9d0f/archives.go#L126>
+- <https://github.com/mholt/archives/blob/335037c4ea10c326ec4a7a655b505ffdd93a9d0f/archives.go#L42>
+- <https://github.com/spf13/afero?tab=readme-ov-file#using-aferos-utility-functions>
+- <https://github.com/aquaproj/aqua/blob/d6439b41a1a0c7817b5704ceeb8d5250714a6bd2/pkg/unarchive/archives.go>

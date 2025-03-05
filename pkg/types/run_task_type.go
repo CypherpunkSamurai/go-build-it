@@ -38,6 +38,7 @@ func FromWorkflowType(wf *WorkflowType, jobID string) (*RunTaskType, error) {
 		Name:  *job.Name,
 		Image: job.Image,
 		DockerFileLines: []string{
+			"FROM " + job.Image,
 			"RUN mkdir -p /workdir",
 			"WORKDIR /workdir",
 		},
