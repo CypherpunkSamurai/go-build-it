@@ -8,7 +8,7 @@ import (
 )
 
 // TestFromWorkflowType - Tests FromWorkflowType function so it returns valid RunTaskType
-func TestRunTaskTypeFromWorkflowType(t *testing.T) {
+func TestFromWorkflowType(t *testing.T) {
 	// define a list of test cases (we defined only 2)
 	tests := []struct {
 		name     string
@@ -36,9 +36,12 @@ func TestRunTaskTypeFromWorkflowType(t *testing.T) {
 			want: &RunTaskType{
 				Name:  "test",
 				Image: "golang:latest",
-				DockerShellCommands: []DockerCommandType{
-					{cmd: "git clone https://github.com/cyperpunksamurai/go-build-it.git .", cwd: ""},
-					{cmd: "go test ./...", cwd: ""},
+				DockerFileLines: []string{
+					// remember to add the initial commands in test
+					"RUN mkdir -p /workdir",
+					"WORKDIR /workdir",
+					"RUN cd /workdir && git clone https://github.com/cyperpunksamurai/go-build-it.git .",
+					"RUN go test ./...",
 				},
 				GitUrl: "https://github.com/cyperpunksamurai/go-build-it.git",
 			},
