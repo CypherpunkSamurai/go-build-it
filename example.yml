@@ -5,19 +5,20 @@ version: 1.0
 name: Build and Test Go Binary
 
 # git url for the repository
-git_url: https://github.com/cyperpunksamurai/go-build-it.git
+git_url: https://github.com/go-training/helloworld.git
 
 # jobs under the workflow
 jobs:
   test:
     name: Run Tests
     image: golang:latest
+    # image: sha256:b63ae85a7b7dd646b7e81034787789c8bc4342a4ca2f62b716d3aa23e8391cef
     steps:
       - uses: checkout
-      - name: format code
-        run: go fmt ./...
-      - name: run tests
-        run: go test ./...
+      # - name: format code
+      #   run: go fmt
+      # - name: run tests
+      #   run: go test -v ./...
   build:
     # optional name (else it will be the name of the job. like 'test' has name 'test')
     name: Build Binary

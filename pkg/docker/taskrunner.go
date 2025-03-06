@@ -40,6 +40,7 @@ func RunTaskWithDocker(ctx context.Context, runTask *types.RunTaskType) error {
 
 	// Build
 	response, err := client.ImageBuild(ctx, dockerfileTar, dockerTypes.ImageBuildOptions{
+		Tags:    []string{runTask.Image},
 		NoCache: true,
 		// Tags:    []string{runTask.Image},
 		Memory: 1024 * 1024 * 1024, // 1GB
